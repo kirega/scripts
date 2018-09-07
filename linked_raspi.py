@@ -26,7 +26,7 @@ class LinkedList():
         curr = self.head
         while curr:
             nodes.append(repr(curr))
-            curr = curr.next
+            curr = curr.nxt
         return '[' + ','.join(nodes) +']'
 
     def append(self,data):
@@ -37,9 +37,9 @@ class LinkedList():
             self.head = Node(data=data)
 
         curr = self.head
-        while curr.next:
-            curr = curr.next
-        curr.next = Node(data=data)
+        while curr.nxt:
+            curr = curr.nxt
+        curr.nxt = Node(data=data)
 
 r = requests.post('http://localhost:8000/rest_auth/login/',data={'username':'kirega','password':'mtotomdogo'})
 
@@ -53,11 +53,11 @@ q = json.loads(q)
 
 l=[]
 
+# Instance of linkedList
+playlist = LinkedList()
+
 for each in q :
     # print(each['upload'])
     l.append(each['upload'])
+    playlist.append(each['upload'])
     m = each['upload']
-
-for i in l[:1]:
-    subprocess.Popen(['wget','-r',i])
-    

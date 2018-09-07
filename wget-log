@@ -1,0 +1,14 @@
+--2018-09-07 11:51:35--  http://localhost:8000/media/ad/Screenshot_from_2018-08-16_22-37-02.png
+Resolving localhost (localhost)... 127.0.0.1
+Connecting to localhost (localhost)|127.0.0.1|:8000... connected.
+HTTP request sent, awaiting response... 200 ‘wget-log’
+Length: 153219 (150K) [image/png]
+Saving to: ‘localhost:8000/media/ad/Screenshot_from_2018-08-16_22-37-02.png’
+
+                   localhost:8000/medi   0%[                                                                            ]       0  --.-KB/s               localhost:8000/media/ad/Screenshot_fro 100%[===========================================================================>] 149.63K  --.-KB/s    in 0.003s  
+
+2018-09-07 11:51:35 (55.0 MB/s) - ‘localhost:8000/media/ad/Screenshot_from_2018-08-16_22-37-02.png’ saved [153219/153219]
+
+FINISHED --2018-09-07 11:51:35--
+Total wall clock time: 0.04s
+Downloaded: 1 files, 150K in 0.003s (55.0 MB/s)
