@@ -1,34 +1,98 @@
 #!/usr/bin/env python3
 
-from omxplayer.player import OMXPlayer
-from pathlib import Path
-from time import sleep
+# import watchdog
 import logging
-logging.basicConfig(level=logging.INFO)
+import requests
+import json
+import pprint
+from time import sleep
+import sh
 
 
-VIDEO_1_PATH = "../tests/media/test_media_1.mp4"
-player_log = logging.getLogger("Player 1")
+class Scheduler(object):
+    """
+        A scheduler class to control what goes next into the  display.
+    """
 
-player = OMXPlayer(VIDEO_1_PATH, 
-        dbus_name='org.mpris.MediaPlayer2.omxplayer1')
-player.playEvent += lambda _: player_log.info("Play")
-player.pauseEvent += lambda _: player_log.info("Pause")
-player.stopEvent += lambda _: player_log.info("Stop")
+    def __init__(self, key):
+        logging.debug("Scheduler initializing")
+        self.next = ''
+        # self.playlist = self.fetch_playlist()
+        self.key = key
+        self.asset = self.fetch_playlist()
+    def fetch_playlist(self):
+        logging.debug("Fetching the playlist")
+        q = requests.get('http://localhost:8000/adverts/playlist',
+                         headers={'Authorization': 'Token ' + self.key})
+        q = q.content.decode('utf-8')
+        q = json.loads(q)
+        return self.fetch_assets(q)
+    def fetch_assets(self,playlist):
+        for each in playlist:
+            if len(each['adverts']) > 0:
+                ads = ','.join(map(str,each['adverts']))
+                r = requests.get('http://localhost:8000/adverts/list/?id__in='+ads, headers={'Authorization':'Token ' + self.key})
+                r = r.content.decode('utf-8')
+                r = json.loads(r)
+            for each in r:
+                return each
+    def get_call(self,url):
+        r = requests.get(url, headers={'Authorization': ' Token ' + self.key})
+        r = r.content.decode('utf-8')
+        r = json.load(r)
+        return r
 
-# it takes about this long for omxplayer to warm up and start displaying a picture on a rpi3
-sleep(2.5)
+def auth(user, pwd):
+    r = requests.post('http://localhost:8000/rest_auth/login/',
+                      data={'username': user, 'password': pwd})
+    r = r.content.decode('utf-8')
+    r = json.loads(r)
+    return r['key']
+def get_sec(time_str):
+    h, m, s = time_str.split(':')
+    return int(h) * 3600 + int(m) * 60 + int(s)
 
-player.set_position(5)
-player.pause()
+
+def play_video(uri, duration):
+    logging.debug('Displaying video %s for %s', uri, duration)
+    player_args = ['omxplayer', "--win '0 0  640 480'",uri]
+    # player_kwargs = {'o': settings['audio_output'], '_bg': True, '_ok_code': [0, 124, 143]}
+    if duration and duration != 'N/A':
+        print(duration)
+      
+        player_args = ['timeout', 5 ] + player_args
+
+        # player_args = ['timeout', get_sec(duration)] + player_args
+
+        print(player_args)
+
+    run = sh.Command(player_args[0])(*player_args[1:])
+    # run()
+    # print(dir(sh.Command())
+    try:
+        while run.process.alive:
+            # watchdog()
+            sleep(1)
+        # if run.exit_code == 124:
+        #     logging.error('player timed out')
+    except sh.ErrorReturnCode_1:
+        logging.warning(
+            'Resource URI is not correct, remote host is not responding or request was rejected')
 
 
-sleep(2)
+def loop(scheduler):
+    assets = scheduler.asset
+    if 'video' in assets['type']:
+        play_video(assets['upload'],assets['duration'])
+    else:
+        logging.warning('Unknown mime type')
+    
 
-player.set_aspect_mode('stretch')
-player.set_video_pos(0, 0, 200, 200)
-player.play()
+if __name__ == "__main__":
+    key = auth('kirega', 'mtotomdogo')
 
-sleep(5)
+    global scheduler
+    scheduler = Scheduler(key)
 
-player.quit()
+    while True:
+        loop(scheduler)

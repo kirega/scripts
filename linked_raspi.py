@@ -40,7 +40,8 @@ class LinkedList():
         while curr.nxt:
             curr = curr.nxt
         curr.nxt = Node(data=data)
-
+    def traverse(self):
+        pass
 r = requests.post('http://localhost:8000/rest_auth/login/',data={'username':'kirega','password':'mtotomdogo'})
 
 r = r.content.decode('utf-8')
