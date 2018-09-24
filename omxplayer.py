@@ -8,7 +8,8 @@ import pprint
 from time import sleep
 import sh
 
-
+# URL = 'http://35.190.176.112'
+URL='http://localhost:8000'
 class Scheduler(object):
     """
         A scheduler class to control what goes next into the  display.
@@ -22,7 +23,7 @@ class Scheduler(object):
         self.asset = self.fetch_playlist()
     def fetch_playlist(self):
         logging.debug("Fetching the playlist")
-        q = requests.get('http://localhost:8000/adverts/playlist',
+        q = requests.get( URL + '/adverts/playlist',
                          headers={'Authorization': 'Token ' + self.key})
         q = q.content.decode('utf-8')
         q = json.loads(q)
@@ -31,7 +32,7 @@ class Scheduler(object):
         for each in playlist:
             if len(each['adverts']) > 0:
                 ads = ','.join(map(str,each['adverts']))
-                r = requests.get('http://localhost:8000/adverts/list/?id__in='+ads, headers={'Authorization':'Token ' + self.key})
+                r = requests.get( URL+'/adverts/list/?id__in='+ads, headers={'Authorization':'Token ' + self.key})
                 r = r.content.decode('utf-8')
                 r = json.loads(r)
             for each in r:
@@ -43,7 +44,7 @@ class Scheduler(object):
         return r
 
 def auth(user, pwd):
-    r = requests.post('http://localhost:8000/rest_auth/login/',
+    r = requests.post(URL+'/rest_auth/login/',
                       data={'username': user, 'password': pwd})
     r = r.content.decode('utf-8')
     r = json.loads(r)
@@ -55,7 +56,8 @@ def get_sec(time_str):
 
 def play_video(uri, duration):
     logging.debug('Displaying video %s for %s', uri, duration)
-    player_args = ['omxplayer', "--win '0 0  640 480'",uri]
+    # player_args = ['omxplayer', "--win '0 0  640 480'",uri]
+    player_args = ['cvlc',uri]
     # player_kwargs = {'o': settings['audio_output'], '_bg': True, '_ok_code': [0, 124, 143]}
     if duration and duration != 'N/A':
         print(duration)
@@ -66,12 +68,15 @@ def play_video(uri, duration):
 
         print(player_args)
 
+    # run = sh.Command(player_args[0])(*player_args[1:])
     run = sh.Command(player_args[0])(*player_args[1:])
+    # run = sh.Command(player_args[0])
     # run()
     # print(dir(sh.Command())
     try:
         while run.process.alive:
             # watchdog()
+            print('hello')
             sleep(1)
         # if run.exit_code == 124:
         #     logging.error('player timed out')
