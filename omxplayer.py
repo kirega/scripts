@@ -75,7 +75,7 @@ def play_video(uri, duration):
     
     run = sh.Command(player_args[0])(*player_args[1:])
     while run.process.alive:
-        # watchdog()
+        watchdog()
         print('hello')
         sleep(1)
     # if run.exit_code == 124:
@@ -88,12 +88,13 @@ def play_video(uri, duration):
 def loop(scheduler):
     assets = scheduler.asset
     asset_generator = itertools.cycle(assets)
-    current_asset = next(asset_generator)
-    # print(current_asset['duration'])
-    if 'video' in current_asset['type']:
-        play_video(current_asset['upload'],current_asset['duration'])
-    else:
-        logging.warning('Unknown mime type')
+    while True:
+        current_asset = next(asset_generator)
+        print(current_asset['upload'])
+        if 'video' in current_asset['type'] or 'stream' in current_asset['type']:
+            play_video(current_asset['upload'],current_asset['duration'])
+        else:
+            logging.warning('Unknown mime type')
     
 
 if __name__ == "__main__":
@@ -101,5 +102,5 @@ if __name__ == "__main__":
 
     global scheduler
     scheduler = Scheduler(key)
-    while True:
-        loop(scheduler)
+   
+    loop(scheduler)
