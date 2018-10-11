@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-# import watchdog
 import logging
 import requests
 import json
@@ -8,8 +6,8 @@ import pprint
 from time import sleep
 import sh
 import itertools
-# URL = 'http://35.190.176.112'
-URL='http://localhost:8000'
+URL = 'http://35.190.176.112'
+# URL='http://localhost:8000'
 class Scheduler(object):
     """
         A scheduler class to control what goes next into the  display.
@@ -63,42 +61,50 @@ def play_video(uri, duration):
     print('Displaying video %s for %s', uri, duration)
     player_args = ['mpv',uri]
     # player_args = ['omxplayer', "--win '0 0  640 480'",uri]
-    # player_kwargs = {'o': settings['audio_output'], '_bg': True, '_ok_code': [0, 124, 143]}
     if duration and duration != 'N/A':
-        # ?print(duration)
-      
-        # player_args = ['timeout', 5 ] + player_args
-
-        # player_args = ['timeout', get_sec(duration)] + player_args
-
         print(player_args)
     
     run = sh.Command(player_args[0])(*player_args[1:])
-    while run.process.alive:
-        watchdog()
-        print('hello')
-        sleep(1)
+    # while run.process.alive:
+        # print('hello')
+        # sleep(1)
     # if run.exit_code == 124:
     #     logging.error('player timed out')
     # except sh.ErrorReturnCode_1:
     #     logging.warning(
     #         'Resource URI is not correct, remote host is not responding or request was rejected')
-
+def view_image(upload,duration):
+    player_args = ['mpv',uri]
+    # run = sh.Command(player_args[0])(*player_args[1:])
 
 def loop(scheduler):
     assets = scheduler.asset
     asset_generator = itertools.cycle(assets)
+    m = len(assets)
+    i = 0
     while True:
         current_asset = next(asset_generator)
-        print(current_asset['upload'])
-        if 'video' in current_asset['type'] or 'stream' in current_asset['type']:
+        i += 1
+        print(i)
+        
+        if 'video' in current_asset['type'] or 'stream' in current_asset['type'] or 'image' in current_asset['type']:
             play_video(current_asset['upload'],current_asset['duration'])
+        # elif 'image' in current_asset['type']:
+        #     view_image(current_asset['upload'],current_asset['duration'])
         else:
             logging.warning('Unknown mime type')
+        if(i == m):
+            scheduler = Scheduler(scheduler.key)
+            assets = scheduler.asset
+            asset_generator = itertools.cycle(assets)
+            print(assets)
+            i = 0
+            print('gettin update')
     
 
 if __name__ == "__main__":
-    key = auth('kirega', 'mtotomdogo')
+    global key 
+    key = auth('kirega', 'mtotomdogo96')
 
     global scheduler
     scheduler = Scheduler(key)
