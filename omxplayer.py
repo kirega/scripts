@@ -104,7 +104,7 @@ def loop(scheduler):
 
 if __name__ == "__main__":
     global key 
-    key = auth('kirega', 'mtotomdogo96')
+    key = auth('kirega', 'allar')
 
     global scheduler
     scheduler = Scheduler(key)

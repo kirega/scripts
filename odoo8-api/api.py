@@ -3,7 +3,7 @@ import pprint
 url = 'http://localhost:8600'
 db = 'test'
 username = "admin"
-password = "mtotomdogo"
+password = "allar"
 
 # Authenticate to the Server returns the UID needed in every call
 common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))

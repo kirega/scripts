@@ -5,7 +5,7 @@ import subprocess
 
 
 # r = requests.get('http://localhost:8000/adverts/list',)
-r = requests.post('http://localhost:8000/rest_auth/login/',data={'username':'kirega','password':'mtotomdogo'})
+r = requests.post('http://localhost:8000/rest_auth/login/',data={'username':'kirega','password':'allar'})
 
 r = r.content.decode('utf-8')
 r = json.loads(r)
